@@ -9,6 +9,7 @@ let
     kernelspec = ./modules/kernelspec.nix;
     ihaskell = ../kernel-types/ihaskell.nix;
     ipykernel = ../kernel-types/ipykernel.nix;
+    ijulia = ../kernel-types/ijulia.nix;
   };
 
   jupyterLib = rec {
