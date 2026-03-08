@@ -39,9 +39,7 @@
 
   config =
     let
-      kernelEnv = if config.project != null
-                  then config.julia.withPackages { inherit (config) project; }
-                  else config.julia.withPackages ([ "IJulia" ] ++ config.packages);
+      kernelEnv = config.julia.withPackages ([ "IJulia" ] ++ config.packages);
 
       spec = {
         argv = [
