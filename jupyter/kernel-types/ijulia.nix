@@ -19,7 +19,7 @@
       type = lib.types.nullOr lib.types.str;
       description = "Path to the directory containing Project.toml and Manifest.toml";
       default = null;
-      example = ".";
+      example = "@.";
     };
 
     packages = lib.mkOption {

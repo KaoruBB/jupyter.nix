@@ -189,7 +189,7 @@ by providing its directory:
 # kernels =
 {
   "Julia project".ijulia = {
-    project = ./.;
+    project = "@.";
   };
 }
 ```
