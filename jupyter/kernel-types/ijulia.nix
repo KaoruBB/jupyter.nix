@@ -46,7 +46,12 @@
           "${kernelEnv}/bin/julia"
         ] ++ lib.optional (config.project != null) "--project=${config.project}"
           ++ config.extraArgs ++ [
-          "-e" "import IJulia; IJulia.run_kernel()"
+          "-e" ''
+            using Pkg
+            ${lib.optionalString (config.project != null) "Pkg.instantiate()"}
+            import IJulia
+            IJulia.run_kernel()
+          ''
           "{connection_file}"
         ];
 
