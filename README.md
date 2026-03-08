@@ -160,7 +160,24 @@ Here is an example of an IHaskell kernel for the Haskell language:
       text
 
       ihaskell-aeson
-    ]
+    ];
+  };
+}
+```
+
+#### Julia kernel (`ijulia`)
+
+Here is an example of an IJulia kernel for the Julia language:
+
+```nix
+# kernels =
+{
+  "Julia".ijulia = {
+    packages = [
+      "CSV"
+      "DataFrames"
+      "Distributions"
+    ];
   };
 }
 ```
@@ -215,6 +232,7 @@ The library also provides the following kernel types:
 
 * `ipykernel` – standard Python kernel
 * `ihaskell` – standard Haskell kernel
+* `ijulia` – standard Julia kernel
 
 See [`jupyter/kernel-types/README.md`](./jupyter/kernel-types/README.md) for the details
 of how all this works and how to contribute a new kernel type.
@@ -224,7 +242,7 @@ of how all this works and how to contribute a new kernel type.
 
 * No way to provide global Jupyter configuration
 * No support for Jupyter extensions
-* High-level helpers only for Python and Haskell kernels (could be more!)
+* High-level helpers only for Python, Haskell and Julia kernels (could be more!)
 * ...
 
 These are not inherent technical limitations, I have just implemented the bare minimum
