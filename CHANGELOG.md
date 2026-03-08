@@ -18,7 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Add high-level support for Julia kernels (`ijulia` kernel type).
 * Add basic support for Jupyter extensions (`jupyterExtensions`
   top-level configuration option and kernel config output option).
-* Make the IHaskell kernell install its extension for syntax highlighting.
+* Make the IHaskell kernel install its extension for syntax highlighting.
 
 ### Changed
 
