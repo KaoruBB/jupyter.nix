@@ -182,6 +182,18 @@ Here is an example of an IJulia kernel for the Julia language:
 }
 ```
 
+You can also use an existing Julia project (with `Project.toml` and `Manifest.toml`)
+by providing its directory:
+
+```nix
+# kernels =
+{
+  "Julia project".ijulia = {
+    project = ./.;
+  };
+}
+```
+
 #### Raw Jupyter kernel spec
 
 You can also provide a [Jupyter kernel spec][jupyter:kernelspec] directly

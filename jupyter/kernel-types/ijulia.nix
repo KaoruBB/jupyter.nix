@@ -15,9 +15,16 @@
       defaultText = lib.literalExpression "pkgs.julia-bin";
     };
 
+    project = lib.mkOption {
+      type = lib.types.nullOr lib.types.path;
+      description = "Path to the directory containing Project.toml and Manifest.toml";
+      default = null;
+      example = lib.literalExpression "./.";
+    };
+
     packages = lib.mkOption {
       type = lib.types.listOf lib.types.str;
-      description = "List of Julia packages to include with the kernel";
+      description = "List of Julia packages to include with the kernel (only if project is null)";
       default = [ ];
       example = [ "Plots" "DataFrames" ];
     };
@@ -32,12 +39,15 @@
 
   config =
     let
-      kernelEnv = config.julia.withPackages ([ "IJulia" ] ++ config.packages);
+      kernelEnv = if config.project != null
+                  then config.julia.withPackages { inherit (config) project; }
+                  else config.julia.withPackages ([ "IJulia" ] ++ config.packages);
 
       spec = {
         argv = [
           "${kernelEnv}/bin/julia"
-        ] ++ config.extraArgs ++ [
+        ] ++ lib.optional (config.project != null) "--project=${config.project}"
+          ++ config.extraArgs ++ [
           "-e" "import IJulia; IJulia.run_kernel()"
           "{connection_file}"
         ];
