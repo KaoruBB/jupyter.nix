@@ -6,15 +6,24 @@
 
 rec {
 
-  specKernel = { ... }: {
+  specKernel = { config, ... }: {
     imports = [
       ./modules/kernelspec.nix
     ];
 
     options = {
+      extraPath = lib.mkOption {
+        type = lib.types.listOf lib.types.path;
+        description = "Extra directories to add to PATH in the kernel";
+        default = [ ];
+        example = lib.literalExpression ''[ "''${lib.getBin pkgs.hello}/bin" ]'';
+      };
     };
 
     config = {
+      spec.env = lib.mkIf (config.extraPath != []) {
+        PATH = lib.concatStringsSep ":" (config.extraPath ++ [ "\${PATH}" ]);
+      };
     };
   };
 

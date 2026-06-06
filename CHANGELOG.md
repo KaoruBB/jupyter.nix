@@ -18,6 +18,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Add basic support for Jupyter extensions (`jupyterExtensions`
   top-level configuration option and kernel config output option).
 * Make the IHaskell kernell install its extension for syntax highlighting.
+* Add `extraPath` module for adding directories to the PATH available in the kernel.
 
 ### Changed
 
