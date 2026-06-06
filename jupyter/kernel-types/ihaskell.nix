@@ -2,9 +2,13 @@
 #
 # SPDX-License-Identifier: MPL-2.0 OR MIT
 
-{ kernelName, name, config, jupyterConfig, jupyterLib, lib, pkgs, ... }:
+{ kernelName, name, config, jupyterLib, lib, pkgs, ... }:
 
 {
+
+  imports = [
+    jupyterLib.specKernel
+  ];
 
   options = {
     haskellPackageSet = lib.mkOption {
@@ -52,7 +56,7 @@
         mkdir -p -- "$extDir"
         ln -sT -- "${dataDir}/jupyterlab-ihaskell/labextension" "$extDir/jupyterlab-ihaskell"
       '';
-
+    in {
       spec = {
         argv = [
           (lib.getExe' kernelEnv "ihaskell")
@@ -70,8 +74,6 @@
 
         logo_svg = "${dataDir}/html/logo-64x64.svg";
       };
-    in {
-      outDir = jupyterLib.buildKernelSpec pkgs name spec;
 
       jupyterExtensions = [
         jupyterlab-ihaskell

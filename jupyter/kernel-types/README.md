@@ -15,13 +15,20 @@ Start with the following template:
 
 {
 
+  imports = [
+    jupyterLib.specKernel
+  ];
+
   options = {
     /* TODO */
   };
 
   config = {
-    /* mandatory */ outDir = /* TODO */;
+    spec = {
+      /* TODO */
+    };
     /* optional */  jupyterEnvPackages = pp: [ /* ...packages... */ ];
+    /* optional */  jupyterExtensions = [ /* ...packages... */ ];
   };
 
 }
@@ -44,35 +51,28 @@ Each kernel module definition will receive the following arguments:
   * `jupyterLib` – the jupyter.nix library.
 
 You can define whatever options make sense for this kernel type.
-Your goal is to produce a Jupyter kernelspec directory and put it into
-the `outDir` config option.
+
+Your ultimate goal is to produce a Jupyter-JSON-like kernelspec in the `spec` option
+(see <https://jupyter-client.readthedocs.io/en/latest/kernels.html#kernel-specs>
+for details).
+
 You may also assign to the `jupyterEnvPackages` option – this will cause
 the packages you select from the Python packages set (given to your function
 as `pp`) to get installed into the Python environment that Jupyter is running from.
+`jupyterExtensions` is a list of packages that provide Jupyter extensions that
+are required for your kernel and will be installed into the server.
 
-_Note: you do not need to define the `outDir` and `jupyterEnvPackages` options in your
-module, they will be defined automatically._
+_Note: you do not need to define the `outDir`, `jupyterEnvPackages`, `jupyterExtensions`,
+and other options in your module, they will be defined automatically._
 
-## Kernel spec helpers
+## Advanced usage
 
-The directory for `outDir` needs to follow a special format understood by Jupyter.
-Rather than creating it yourself, you can write a kernel spec in Nix
-(see [lib/modules/kernelspec.nix](../lib/modules/kernelspec.nix) for the documentation
-of available options).
-And then you can just pass it to `jupyterLib.buildKernelSpec`:
+The `jupyterLib.specKernel` module is merely a helper that builds a Jupyter kernelspec
+directory from a JSON-like kernel specification assigned to `spec`.
 
-```nix
-{ # ...
-  config =
-    let
-      spec = {
-        # prepare the spec
-      };
-    in {
-      outDir = jupyterLib.buildKernelSpec pkgs name spec;
-    };
-}
-```
+If you prefer to build the kernelspec directory yourself (or if you already have an
+existing directory that you want to use in your kernel), you can skip the imports
+and instead assign the directory path to the `outDir` option.
 
 ## Known kernel types
 

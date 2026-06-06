@@ -6,6 +6,10 @@
 
 {
 
+  imports = [
+    jupyterLib.specKernel
+  ];
+
   options = {
     packages = lib.mkOption {
       type = lib.types.functionTo (lib.types.listOf lib.types.package);
@@ -47,7 +51,7 @@
         pp.ipympl
         pp.matplotlib
       ] ++ config.packages pp);
-
+    in {
       spec = {
         argv = [
           "${kernelEnv.interpreter}"
@@ -63,8 +67,6 @@
         logo_64 = "${kernelEnv}/${kernelEnv.sitePackages}/ipykernel/resources/logo-64x64.png";
         logo_32 = "${kernelEnv}/${kernelEnv.sitePackages}/ipykernel/resources/logo-32x32.png";
       };
-    in {
-      outDir = jupyterLib.buildKernelSpec pkgs name spec;
 
       jupyterExtensions =
         let

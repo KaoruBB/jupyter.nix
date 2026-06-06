@@ -65,15 +65,15 @@
         description = "32×32 PNG logo for the kernel";
         default = null;
       };
-
-      ### Output:
-
-      # This module generates the specification into the following
-      # output option, which has to be defined by the evaluator:
-      # outDir = lib.mkOption {
-      #   type = lib.types.package;
-      # };
     };
+
+    ### Output:
+
+    # This module generates the specification into the following
+    # output option, which has to be defined by the evaluator:
+    # outDir = lib.mkOption {
+    #   type = lib.types.package;
+    # };
   };
 
   config =

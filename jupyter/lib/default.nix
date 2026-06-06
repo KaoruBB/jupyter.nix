@@ -11,6 +11,8 @@ let
     ipykernel = ../kernel-types/ipykernel.nix;
   };
 
+  libKernelSpec = import ./kernelspec.nix { inherit lib; };
+
   jupyterLib = rec {
     evalJupyterConfig = config:
       lib.evalModules {
@@ -29,7 +31,7 @@ let
     makeJupyterLab = config:
       (evalJupyterConfig config).config.outDrv;
 
-    inherit (import ./kernelspec.nix { inherit lib; }) buildKernelSpec;
+    inherit (libKernelSpec) buildKernelSpec specKernel;
   };
 
 in jupyterLib

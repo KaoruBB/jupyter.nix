@@ -6,6 +6,18 @@
 
 rec {
 
+  specKernel = { ... }: {
+    imports = [
+      ./modules/kernelspec.nix
+    ];
+
+    options = {
+    };
+
+    config = {
+    };
+  };
+
   evalKernelSpec = pkgs: name: spec:
     lib.evalModules {
       modules = [
