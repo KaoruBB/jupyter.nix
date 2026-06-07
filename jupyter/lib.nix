@@ -10,7 +10,7 @@ let
   # A helper for defining spec-based kernels.
   # Normally, kernels are expected to produce `outDir` with a Jupyter
   # kernelspec (see `./kernel/module.nix`), however wrapping the module
-  # by calling this function makes it so you need to populage the
+  # by calling this function makes it so you need to populate the
   # `spec` option (`./kernelspec/module.nix`) instead and `outDir` will
   # be built automatically.
   kernelspecKernel = module: {
@@ -21,12 +21,7 @@ let
   };
 
   # Built-in kernel types.
-  kernelTypes = {
-    kernelspec = kernelspecKernel { };
-
-    ihaskell = ./kernel-types/ihaskell.nix;
-    ipykernel = ./kernel-types/ipykernel.nix;
-  };
+  kernelTypes = import ./kernel-types.nix { inherit kernelspecKernel; };
 
   jupyterLib = rec {
     evalJupyterConfig = config:

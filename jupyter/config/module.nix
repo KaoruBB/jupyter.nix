@@ -35,7 +35,7 @@
 
     kernelTypes = lib.mkOption {
       type = lib.types.attrsOf (lib.types.deferredModuleWith {
-        staticModules = [ ../kernel/module.nix ];  # This is what defines the output config options commont to all kernel types
+        staticModules = [ ../kernel/module.nix ];  # This is what defines the output config options common to all kernel types
       });
       description = "Supported kernel types";
       example = lib.literalExpression ''
@@ -66,7 +66,7 @@
           description = "${name} kernel definition";
         }
       ) config.kernelTypes));
-      description = "Jupter kernels definitions";
+      description = "Jupyter kernels definitions";
       default = {};
       defaultText = lib.literalExpression ''{}'';
     };

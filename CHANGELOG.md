@@ -28,6 +28,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Add `jupyterLib.kernelspecKernel` helper for defining new kernel types that
   are built from a spec, so there is no need to call `buildKernelSpec` and
   assigning to `outDir` manually.
+* Reorganise documentation: the `README.md` is now a concise overview, with
+  detailed guides moved into the `doc/` directory (quickstart, examples,
+  architecture, kernel authoring). Add a top-level `CONTRIBUTING.md`.
 
 
 ## [1.0.0]

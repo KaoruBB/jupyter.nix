@@ -9,7 +9,7 @@ jupyterLib.kernelspecKernel {
   options = {
     haskellPackageSet = lib.mkOption {
       type = lib.types.functionTo (lib.types.lazyAttrsOf lib.types.anything);
-      description = "Select for the Python packages set to use";
+      description = "Selector for the Haskell packages set to use";
       default = pkgs: pkgs.haskellPackages;
       defaultText = lib.literalExpression ''pkgs: pkgs.haskellPackages'';
       example = lib.literalExpression ''pkgs: pkgs.haskell.packages.ghc987'';
