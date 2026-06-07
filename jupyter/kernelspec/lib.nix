@@ -6,9 +6,10 @@
 
 rec {
 
+  # Helper module that provides common options for spec-based kernel types.
   specKernel = { config, ... }: {
     imports = [
-      ./modules/kernelspec.nix
+      ./module.nix
     ];
 
     options = {
@@ -27,10 +28,11 @@ rec {
     };
   };
 
+  # Utility that evaluates a kernel spec (e.g. for testing).
   evalKernelSpec = pkgs: name: spec:
     lib.evalModules {
       modules = [
-        ./modules/kernelspec.nix
+        ./module.nix
         {
           options = {
             outDir = lib.mkOption {

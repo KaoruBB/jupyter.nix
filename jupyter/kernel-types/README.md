@@ -13,11 +13,7 @@ Start with the following template:
 ```nix
 { kernelName, name, config, jupyterLib, lib, pkgs, ... }:
 
-{
-
-  imports = [
-    jupyterLib.specKernel
-  ];
+jupyterLib.kernelspecKernel {
 
   options = {
     /* TODO */
@@ -67,12 +63,12 @@ and other options in your module, they will be defined automatically._
 
 ## Advanced usage
 
-The `jupyterLib.specKernel` module is merely a helper that builds a Jupyter kernelspec
+The `jupyterLib.kernelspecKernel` wrapper is a helper that builds a kernelspec
 directory from a JSON-like kernel specification assigned to `spec`.
 
 If you prefer to build the kernelspec directory yourself (or if you already have an
-existing directory that you want to use in your kernel), you can skip the imports
-and instead assign the directory path to the `outDir` option.
+existing directory that you want to use in your kernel), you can skip this function
+and instead assign the directory path to the `outDir` option directly.
 
 ## Known kernel types
 

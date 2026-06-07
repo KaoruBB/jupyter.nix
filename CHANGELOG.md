@@ -25,6 +25,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * For ipykernel, when `enablePlotly = true`, do not install `anywidget` and
   `plotly` Python packages into the Jupyter env, just install the extensions.
 * Force read-only extension manager in the webui.
+* Add `jupyterLib.kernelspecKernel` helper for defining new kernel types that
+  are built from a spec, so there is no need to call `buildKernelSpec` and
+  assigning to `outDir` manually.
 
 
 ## [1.0.0]

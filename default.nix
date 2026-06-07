@@ -10,5 +10,5 @@
 }:
 
 {
-  jupyterlib = import ./jupyter/lib { inherit (pkgs) lib; };
+  lib = import ./jupyter/lib.nix { inherit (pkgs) lib; };
 }

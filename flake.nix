@@ -13,7 +13,7 @@
       inherit (nixpkgs) lib;
     in {
 
-      lib = import ./jupyter/lib { inherit lib; };
+      lib = import ./jupyter/lib.nix { inherit lib; };
 
     } // flake-utils.lib.eachDefaultSystem (system:
       let
@@ -40,10 +40,12 @@
 
         checks = {
           eval-lib = pkgs.writeText "eval-lib" (builtins.deepSeq self.lib "OK");
+
           reuse = pkgs.runCommand "reuse-lint" {
             nativeBuildInputs = [ pkgs.reuse ];
           } ''reuse --root ${./.} lint > "$out"'';
-          all-kernel-types = self.lib.makeJupyterLab {
+
+          builtin-kernel-types = self.lib.makeJupyterLab {
             inherit pkgs;
             kernels = {
               "kernelspec".kernelspec = {
@@ -57,6 +59,26 @@
               "ihaskell".ihaskell = { };
             };
           };
+
+          custom-dir-kernel =
+            let
+              dir-kernel = {
+                config.outDir = self.lib.buildKernelSpec pkgs "dir-kernel" {
+                  argv = [ "echo" "hello" ];
+                  display_name = "kernelspec test";
+                  language = "none";
+                };
+              };
+            in
+            self.lib.makeJupyterLab {
+              inherit pkgs;
+              kernelTypes = {
+                inherit dir-kernel;
+              };
+              kernels = {
+                "custom-dir-kernel".dir-kernel = { };
+              };
+            };
         };
       }
     );

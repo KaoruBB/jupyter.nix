@@ -2,13 +2,9 @@
 #
 # SPDX-License-Identifier: MPL-2.0 OR MIT
 
-{ kernelName, name, config, jupyterLib, lib, pkgs, ... }:
+{ kernelName, config, jupyterLib, lib, pkgs, ... }:
 
-{
-
-  imports = [
-    jupyterLib.specKernel
-  ];
+jupyterLib.kernelspecKernel {
 
   options = {
     haskellPackageSet = lib.mkOption {

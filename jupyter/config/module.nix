@@ -35,12 +35,14 @@
 
     kernelTypes = lib.mkOption {
       type = lib.types.attrsOf (lib.types.deferredModuleWith {
-        staticModules = [ ./kernel.nix ];  # This is what defines the output config options commont to all kernel types
+        staticModules = [ ../kernel/module.nix ];  # This is what defines the output config options commont to all kernel types
       });
       description = "Supported kernel types";
-      example = {
-        kernelspec = ./moduels/kernelspec.nix;  # kernel defined directly by a kernelspec
-      };
+      example = lib.literalExpression ''
+        {
+          kernelspec = ../kernel-types/kernelspec.nix;  # kernel defined directly by a kernelspec
+        };
+      '';
     };
 
     kernels = lib.mkOption {
