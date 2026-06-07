@@ -32,6 +32,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
   detailed guides moved into the `doc/` directory (quickstart, examples,
   architecture, kernel authoring). Add a top-level `CONTRIBUTING.md`.
 
+### Fixed
+
+* Account for `targetPrefix` in the IHaskell package datadir path.
+
 
 ## [1.0.0]
 

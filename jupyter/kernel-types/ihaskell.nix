@@ -38,10 +38,16 @@ jupyterLib.kernelspecKernel {
         hp.ihaskell
       ] ++ config.packages hp);
 
+      ghc = haskellPackages.ghc;
+
       dataDir =
-        # FIXME: Why does this have to be so hard??
+        # The datadir path for packages includes a “unit-id” (`--hash-unit-ids`), which is calculated
+        # by GHC and is not really exposed anywhere in Nixpkgs. There is no particularly obvious way
+        # to get it, so we just assume there is only a single datadir and therefore grab the first path
+        # that matches the glob.
+        # FIXME: doing it this way is pretty far from perfect.
         let
-          dataDir1 = "${haskellPackages.ihaskell.data}/share/${haskellPackages.ghc.haskellCompilerName}";
+          dataDir1 = "${haskellPackages.ihaskell.data}/share/${ghc.targetPrefix}${ghc.haskellCompilerName}";
           files = builtins.readDir dataDir1;
           subdir = lib.head (lib.attrNames files);  # Assume there is exactly one
         in "${dataDir1}/${subdir}/${haskellPackages.ihaskell.name}";
@@ -56,7 +62,7 @@ jupyterLib.kernelspecKernel {
       spec = {
         argv = [
           (lib.getExe' kernelEnv "ihaskell")
-          "-l" "${kernelEnv}/lib/${haskellPackages.ghc.haskellCompilerName}/lib"
+          "-l" "${kernelEnv}/lib/${ghc.targetPrefix}${ghc.haskellCompilerName}/lib"
           "kernel"
           "{connection_file}"
           "+RTS"
