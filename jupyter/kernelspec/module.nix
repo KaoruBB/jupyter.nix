@@ -84,11 +84,22 @@
 
   config =
     let
-      jsonSpec = lib.generators.toJSON { } (lib.filterAttrs (k: v: v != null) config.spec);
+      jsonSpecFields = [
+        "argv"
+        "display_name"
+        "language"
+        "interrupt_mode"
+        "env"
+        "metadata"
+      ];
+      jsonSpec = lib.filterAttrs (k: v: v != null) (
+        lib.genAttrs jsonSpecFields (field: config.spec.${field} or null)
+      );
+      jsonSpecJson = lib.strings.toJSON jsonSpec;
     in {
       outDir = pkgs.runCommandLocal "jupyter-kernelspec-${name}" { } (''
         mkdir -p -- "$out"
-        ln -s -- "${pkgs.writeText "${name}.json" jsonSpec}" "$out/kernel.json"
+        ln -s -- "${pkgs.writeText "${name}.json" jsonSpecJson}" "$out/kernel.json"
       '' + lib.optionalString (config.spec.kernel_js != null) ''
         ln -s -- "${config.spec.kernel_js}" "$out/kernel.js"
       '' + lib.optionalString (config.spec.logo_svg != null) ''
