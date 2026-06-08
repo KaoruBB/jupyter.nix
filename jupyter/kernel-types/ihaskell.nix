@@ -48,8 +48,14 @@ jupyterLib.kernelspecKernel {
         # FIXME: doing it this way is pretty far from perfect.
         let
           dataDir1 = "${haskellPackages.ihaskell.data}/share/${ghc.targetPrefix}${ghc.haskellCompilerName}";
-          files = builtins.readDir dataDir1;
-          subdir = lib.head (lib.attrNames files);  # Assume there is exactly one
+          subdirs = lib.attrNames (builtins.readDir dataDir1);
+          subdir =
+            lib.throwIf (subdirs == [])
+              "ihaskell kernel: no datadir subdirectory found under ${dataDir1}"
+            (lib.throwIf (lib.length subdirs > 1)
+              ("ihaskell kernel: multiple datadir subdirectories found under ${dataDir1}: "
+                + lib.concatStringsSep " " subdirs)
+            (lib.head subdirs));
         in "${dataDir1}/${subdir}/${haskellPackages.ihaskell.name}";
 
       # Haskell syntax highlighting extension
