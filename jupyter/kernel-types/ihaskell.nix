@@ -70,6 +70,8 @@ jupyterLib.kernelspecKernel {
           "-RTS"
         ];
 
+        kernel_js = "${dataDir}/html/kernel.js";
+
         display_name = "IHaskell (${kernelName})";
 
         language = "haskell";

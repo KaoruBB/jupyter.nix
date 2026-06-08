@@ -50,6 +50,12 @@
       # The options below are not part of the kernel spec json and
       # do not seem to be well-documented.
 
+      kernel_js = lib.mkOption {
+        type = lib.types.nullOr lib.types.path;
+        description = "Custom JavaScript code to be loaded with the kernel";
+        default = null;
+      };
+
       logo_svg = lib.mkOption {
         type = lib.types.nullOr lib.types.path;
         description = "SVG logo for the kernel";
@@ -83,6 +89,8 @@
       outDir = pkgs.runCommandLocal "jupyter-kernelspec-${name}" { } (''
         mkdir -p -- "$out"
         ln -s -- "${pkgs.writeText "${name}.json" jsonSpec}" "$out/kernel.json"
+      '' + lib.optionalString (config.spec.kernel_js != null) ''
+        ln -s -- "${config.spec.kernel_js}" "$out/kernel.js"
       '' + lib.optionalString (config.spec.logo_svg != null) ''
         ln -s -- "${config.spec.logo_svg}" "$out/logo-svg.svg"
       '' + lib.optionalString (config.spec.logo_64 != null) ''
