@@ -40,7 +40,7 @@
       description = "Supported kernel types";
       example = lib.literalExpression ''
         {
-          kernelspec = ../kernel-types/kernelspec.nix;  # kernel defined directly by a kernelspec
+          newlang = path/to/newlangkernel.nix;
         };
       '';
     };
@@ -146,7 +146,7 @@
           # jupyterlab depends on ipykernel, which ships with a kernel spec for itself,
           # so it gets symlinked into our environment, but we do not want it!
           # XXX: this might be a bit fragile, since we assume that we can `rm` it,
-          # which might not be always true (e.g. if there parent is a symlink into another drv).
+          # which might not be always true (e.g. if their parent is a symlink into another drv).
           rm -rf -- "${kernelsDir}"
           mkdir -p -- "${kernelsDir}"
         '' + lib.concatStringsSep "\n" (lib.mapAttrsToList (name: kern: ''

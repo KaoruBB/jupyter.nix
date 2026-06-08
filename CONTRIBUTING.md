@@ -23,6 +23,7 @@ both very welcome.
     ├── config/module.nix    Top-level configuration module
     ├── kernel/module.nix    The kernel “interface” (output contract)
     ├── kernelspec/          Building a kernel directory from a declarative spec
+    ├── kernel-types.nix     A registry of built-in kernel types
     └── kernel-types/        Built-in kernel types (ipykernel, ihaskell, …)
 ```
 
@@ -42,7 +43,7 @@ A quick map of common tasks:
 
 * **Adding a kernel type** → read [`doc/kernel-authoring.md`](./doc/kernel-authoring.md),
   add an implementation under [`jupyter/kernel-types/`](./jupyter/kernel-types/),
-  and register it in [`jupyter/lib.nix`](./jupyter/lib.nix).
+  and register it in [`jupyter/kernel-types.nix`](./jupyter/kernel-types.nix).
 * **Changing options shared across all standard kernels** →
   [`jupyter/kernelspec/lib.nix`](./jupyter/kernelspec/lib.nix) (`specKernel`).
 * **Changing top-level options or the output derivation** →

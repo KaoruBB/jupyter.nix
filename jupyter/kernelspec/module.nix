@@ -28,7 +28,7 @@
       };
 
       interrupt_mode = lib.mkOption {
-        type = lib.types.nullOr (lib.types.oneOf [ "signal" "message" ]);
+        type = lib.types.nullOr (lib.types.enum [ "signal" "message" ]);
         description = "How the client interrupts cell execution for this kernel";
         default = null;
         example = "message";
@@ -78,7 +78,7 @@
     # This module generates the specification into the following
     # output option, which has to be defined by the evaluator:
     # outDir = lib.mkOption {
-    #   type = lib.types.package;
+    #   type = lib.types.package;  # or any other type compatible with `package`
     # };
   };
 

@@ -23,7 +23,7 @@ jupyter/
 ├── kernelspec/
 │   ├── module.nix           Options describing a raw Jupyter kernelspec
 │   └── lib.nix              Helpers for building kernelspecs (`specKernel`, …)
-├── kernel-types.nix         A registry of build-in kernel types
+├── kernel-types.nix         A registry of built-in kernel types
 └── kernel-types/
     ├── ipykernel.nix        Built-in Python kernel type
     └── ihaskell.nix         Built-in Haskell kernel type
