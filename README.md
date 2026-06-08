@@ -23,34 +23,20 @@ Just run Jupyter Lab with some basic Python packages available:
 $ nix run github:kirelagin/jupyter.nix
 ```
 
-To use it in your own flake, add it as an input and expose a package built with
-`makeJupyterLab`:
+This will give you a basic Jupyter Lab instance with the Python kernel.
 
-```nix
-# flake.nix
-{
-  inputs.jupyter.url = "github:kirelagin/jupyter.nix";
-
-  outputs = { self, nixpkgs, jupyter }:
-    let
-      system = "x86_64-linux";
-      pkgs = nixpkgs.legacyPackages.${system};
-    in {
-      packages.${system}.jupyter = jupyter.lib.makeJupyterLab {
-        inherit pkgs;
-        kernels = {
-          "python".ipykernel = {
-            packages = pp: with pp; [ numpy polars ];
-            withPlotly = true;
-          };
-        };
-      };
-    };
-}
-```
+If you would like to add other kernels, customise the Python kernel (e.g.
+add more Python packages to it) or adjust the configuration of Jupyter Lab
+itself, create your own Jupyter-flake in an empty directory:
 
 ```shell
-$ nix run .#jupyter
+$ nix flake init -t github:kirelagin/jupyter.nix
+```
+
+then edit `flake.nix` and start your Jupyter Lab:
+
+```shell
+nix run
 ```
 
 See the [documentation](#documentation) below for the full story.

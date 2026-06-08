@@ -22,6 +22,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Add `kernel.js` symlinking to kernelspec.
 * Add `jupyter-ihaskell` to flake output packages to make it easier for users
   to directly run a basic IHaskell notebook.
+* Add a flake template for easier quick start.
 
 ### Changed
 

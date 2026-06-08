@@ -15,6 +15,29 @@
 
       lib = import ./jupyter/lib.nix { inherit lib; };
 
+      templates = {
+        default = self.templates.all-kernels;
+
+        all-kernels = {
+          path = ./templates/all-kernels;
+          description = "A basic template with all available kernel types";
+          welcomeText = ''
+            # A basic jupyter.nix template for configuring different kernel types
+
+            ## Customise
+
+            Edit `flake.nix`, see the comments for the most common configuration options
+            for the various kernel types available.
+
+            ## Then start Jupyter Lab
+
+            ```
+            $ nix run
+            ```
+          '';
+        };
+      };
+
     } // flake-utils.lib.eachDefaultSystem (system:
       let
         pkgs = nixpkgs.legacyPackages.${system};

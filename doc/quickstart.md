@@ -14,6 +14,22 @@ To launch Jupyter Lab with a basic Python kernel without installing anything:
 $ nix run github:kirelagin/jupyter.nix
 ```
 
+## Customise and run it
+
+Start by creating a new directory and run in it:
+
+```shell
+$ nix flake init -t github:kirelagin/jupyter.nix
+```
+
+
+This creates `flake.nix`, edit it in your favourite editor to configure the
+Jupyter kernels that you need and then run your brand-new Jupyter flake:
+
+```shell
+$ nix run
+```
+
 ## Add it to your project
 
 Add jupyter.nix as an input to your flake:
