@@ -85,7 +85,7 @@ jupyterLib.kernelspecKernel {
         logo_svg = "${dataDir}/html/logo-64x64.svg";
       };
 
-      jupyterExtensions = [
+      labExtensions = [
         jupyterlab-ihaskell
       ];
     };

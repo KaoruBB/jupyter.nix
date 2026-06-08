@@ -25,11 +25,15 @@
       defaultText = lib.literalExpression ''_: []'';
     };
 
-    jupyterExtensions = lib.mkOption {
+    labExtensions = lib.mkOption {
       type = lib.types.listOf lib.types.package;
-      description = "Packages containing Jupyter extensions to install. Be careful with package sets to ensure compatibility";
+      description = "Packages containing Jupyter labextensions to install. Be careful with package sets to ensure compatibility";
       internal = true;
       default = [ ];
     };
   };
+
+  imports = [
+    (lib.modules.mkRenamedOptionModule [ "jupyterExtensions" ] [ "labExtensions" ])
+  ];
 }

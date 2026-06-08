@@ -27,9 +27,9 @@
       example = lib.literalExpression ''pp: with pp; [ plotly ]'';
     };
 
-    jupyterExtensions = lib.mkOption {
+    labExtensions = lib.mkOption {
       type = lib.types.listOf lib.types.package;
-      description = "Packages containing Jupyter extensions to install";
+      description = "Packages containing Jupyter labextensions to install";
       default = [ ];
     };
 
@@ -110,7 +110,7 @@
       extensionsDir = "share/jupyter/labextensions";
       extensions = pkgs.symlinkJoin {
         name = "jupyter-labextensions";
-        paths = config.jupyterExtensions;
+        paths = config.labExtensions;
         stripPrefix = "/${extensionsDir}";
         failOnMissing = true;
       };
@@ -122,7 +122,7 @@
       jupyterEnvPackages = pp:
         lib.concatMap (kern: kern.jupyterEnvPackages pp) (lib.attrValues kernels);
 
-      jupyterExtensions = lib.concatMap (kern: kern.jupyterExtensions) (lib.attrValues kernels);
+      labExtensions = lib.concatMap (kern: kern.labExtensions) (lib.attrValues kernels);
 
       outDrv = python.buildEnv.override (orig: {
         buildEnv = { paths, ... }@args: orig.buildEnv (args // {
@@ -157,5 +157,9 @@
         '';
       });
     };
+
+  imports = [
+    (lib.modules.mkRenamedOptionModule [ "jupyterExtensions" ] [ "labExtensions" ])
+  ];
 
 }

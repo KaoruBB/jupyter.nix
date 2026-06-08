@@ -11,13 +11,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Changed
+
+* Rename `jupyterExtensions` -> `labextensions`.
+
+
 ## [2.0.0]
 
 ### Added
 
 * Add basic support for Jupyter extensions (`jupyterExtensions`
   top-level configuration option and kernel config output option).
-* Make the IHaskell kernell install its extension for syntax highlighting.
+* Make the IHaskell kernel install its extension for syntax highlighting.
 * Add `extraPath` module for adding directories to the PATH available in the kernel.
 * Add `kernel.js` symlinking to kernelspec.
 * Add `jupyter-ihaskell` to flake output packages to make it easier for users
@@ -49,5 +56,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 First release.
 
 
+[Unreleased]: https://github.com/kirelagin/jupyter.nix/compare/v2.0.0...HEAD
 [2.0.0]: https://github.com/kirelagin/jupyter.nix/compare/v1.0.0...v2.0.0
 [1.0.0]: https://github.com/kirelagin/jupyter.nix/releases/tag/v1.0.0
