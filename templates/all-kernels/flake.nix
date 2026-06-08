@@ -43,6 +43,8 @@
             };
           };
 
+          #collaboration.enable = true;
+
           #jupyterExtensions = [ ];
 
           #jupyterEnvPackages=

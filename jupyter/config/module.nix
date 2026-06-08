@@ -159,6 +159,8 @@
     };
 
   imports = [
+    ./collaboration/module.nix
+
     (lib.modules.mkRenamedOptionModule [ "jupyterExtensions" ] [ "labExtensions" ])
   ];
 
