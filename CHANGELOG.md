@@ -20,6 +20,8 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Make the IHaskell kernell install its extension for syntax highlighting.
 * Add `extraPath` module for adding directories to the PATH available in the kernel.
 * Add `kernel.js` symlinking to kernelspec.
+* Add `jupyter-ihaskell` to flake output packages to make it easier for users
+  to directly run a basic IHaskell notebook.
 
 ### Changed
 

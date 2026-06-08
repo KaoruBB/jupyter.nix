@@ -42,9 +42,6 @@ kernels = {
   "Haskell".ihaskell = {
     packages = hp: with hp; [
       aeson
-      containers
-      text
-
       ihaskell-aeson
     ];
 

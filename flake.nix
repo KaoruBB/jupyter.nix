@@ -20,7 +20,9 @@
         pkgs = nixpkgs.legacyPackages.${system};
       in {
         packages = rec {
-          jupyter = self.lib.makeJupyterLab {
+          default = jupyter-ipykernel;
+
+          jupyter-ipykernel = self.lib.makeJupyterLab {
             inherit pkgs;
             kernels = {
               "python3".ipykernel = {
@@ -35,7 +37,18 @@
             };
           };
 
-          default = jupyter;
+          jupyter-ihaskell = self.lib.makeJupyterLab {
+            inherit pkgs;
+            kernels = {
+              "Haskell".ihaskell = {
+                packages = hp: with hp; [
+                  aeson
+                  ihaskell-aeson
+                ];
+                rtsOptions = [ "-M3g" "-N2" ];
+              };
+            };
+          };
         };
 
         checks = {
