@@ -17,6 +17,7 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 
 * Add support for Real-Time Collaboration (`jupyter-collaboration`).
   (Set `collaboration.enable = true`.)
+* Add `settings` for providing arbitrary `jupyter_config.json` settings.
 
 ### Changed
 

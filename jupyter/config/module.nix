@@ -4,6 +4,11 @@
 
 { config, jupyterLib, lib, ... }:
 
+let
+  jsonFormat = config.pkgs.formats.json { };
+
+in
+
 {
   options = {
     pkgs = lib.mkOption {
@@ -78,6 +83,16 @@
       example = true;
     };
 
+    settings = lib.mkOption {
+      description = "Arbitrary settings that go into `jupyter_config.json`";
+      default = { };
+      type = lib.types.submodule {
+        freeformType = jsonFormat.type;
+        options = {
+        };
+      };
+    };
+
     outDrv = lib.mkOption {
       type = lib.types.package;
       description = "Output derivation with the configured Jupyter environment";
@@ -92,18 +107,7 @@
 
       python = config.pythonInterpreter pkgs;
 
-      jupyterConf = pkgs.writeTextFile {
-        name = "jupyterConf";
-        destination = "/etc/jupyter/jupyter_config.json";
-        text = lib.generators.toJSON { } {
-          "KernelSpecManager" = {
-            "ensure_native_kernel" = config.enableNativeKernel;
-          };
-          "LabApp" = {
-            "extension_manager" = "readonly";
-          };
-        };
-      };
+      jupyterConf = jsonFormat.generate "jupyter_config.json" config.settings;
 
       kernelsDir = "$out/share/jupyter/kernels";
 
@@ -124,12 +128,17 @@
 
       labExtensions = lib.concatMap (kern: kern.labExtensions) (lib.attrValues kernels);
 
-      outDrv = python.buildEnv.override (orig: {
-        buildEnv = { paths, ... }@args: orig.buildEnv (args // {
-          paths = paths ++ [
-            jupyterConf
-          ];
+      settings = {
+        "KernelSpecManager" = {
+          "ensure_native_kernel" = config.enableNativeKernel;
+        };
+        "LabApp" = {
+          "extension_manager" = "readonly";
+        };
+      };
 
+      outDrv = python.buildEnv.override (orig: {
+        buildEnv = { ... }@args: orig.buildEnv (args // {
           meta = {
             changelog = "https://github.com/kirelagin/jupyter.nix/blob/main/CHANGELOG.md";
             homepage = "https://github.com/kirelagin/jupyter.nix";
@@ -143,6 +152,8 @@
         ] ++ config.jupyterEnvPackages python.pkgs;
 
         postBuild = ''
+          ln -sT -- "${jupyterConf}" "$out/etc/jupyter/jupyter_config.json"
+
           # jupyterlab depends on ipykernel, which ships with a kernel spec for itself,
           # so it gets symlinked into our environment, but we do not want it!
           # XXX: this might be a bit fragile, since we assume that we can `rm` it,
