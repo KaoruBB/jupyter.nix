@@ -122,10 +122,7 @@
       jupyterEnvPackages = pp:
         lib.concatMap (kern: kern.jupyterEnvPackages pp) (lib.attrValues kernels);
 
-      jupyterExtensions = [
-        python.pkgs.jupyterlab-widgets
-        python.pkgs.jupyterlab-pygments
-      ] ++ lib.concatMap (kern: kern.jupyterExtensions) (lib.attrValues kernels);
+      jupyterExtensions = lib.concatMap (kern: kern.jupyterExtensions) (lib.attrValues kernels);
 
       outDrv = python.buildEnv.override (orig: {
         buildEnv = { paths, ... }@args: orig.buildEnv (args // {

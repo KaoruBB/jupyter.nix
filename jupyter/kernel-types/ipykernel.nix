@@ -69,6 +69,7 @@ jupyterLib.kernelspecKernel {
         in
           lib.optionals config.withPlotly [
             pp.anywidget
+            pp.jupyterlab-widgets
             pp.plotly
           ];
 

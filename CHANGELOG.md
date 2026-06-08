@@ -32,6 +32,9 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 * Reorganise documentation: the `README.md` is now a concise overview, with
   detailed guides moved into the `doc/` directory (quickstart, examples,
   architecture, kernel authoring). Add a top-level `CONTRIBUTING.md`.
+* Do not install the `jupyterlab-pygments` extension.
+* Only install the `jupyterlab-widgets` extension when `ipykernel` is used
+  and `withPlotly = true`.
 
 ### Fixed
 
