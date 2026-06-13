@@ -15,9 +15,7 @@ This repository provides:
 2. Presets for getting it up and running in seconds.
 
 
-## Use
-
-### Running
+## Quick start
 
 Just run Jupyter Lab with some basic Python packages available:
 
@@ -25,258 +23,56 @@ Just run Jupyter Lab with some basic Python packages available:
 $ nix run github:kirelagin/jupyter.nix
 ```
 
-### Adding to your project
+This will give you a basic Jupyter Lab instance with the Python kernel.
 
-Add it as an input to your flake:
-
-```nix
-# flake.nix
-
-{
-  inputs = {
-    # ...
-
-    jupyter = {
-      url = "github:kirelagin/jupyter.nix";
-      inputs.nixpkgs.follows = "nixpkgs";  # (optionally)
-    };
-  };
-
-  outputs = { self, nixpkgs, jupyter }: {
-    # All functions from jupyter.nix are available in `jupyter.lib`.
-    # ...
-  };
-}
-```
-
-Then you can expose your Jupyter Lab environment as a runnable package:
-
-```nix
-# flake.nix
-{
-  # inputs = ...
-
-  outputs = { self, nixpkgs, jupyter }:
-    let
-      # We keep it simple, but better to use `flake-utils` for systems
-      system = "x86_64-linux";
-      pkgs = nixpkgs.legacyPackages.${system};
-    in {
-      packages.${system} = {
-        # ...
-        jupyter = jupyter.lib.makeJupyterLab {
-          inherit pkgs;
-          kernels = {
-            "python".ipykernel = {
-              packages = pp: with pp; [
-                numpy
-                polars
-              ];
-              withPlotly = true;
-            };
-          };
-        };
-      };
-    };
-}
-```
-
-And run it:
+If you would like to add other kernels, customise the Python kernel (e.g.
+add more Python packages to it) or adjust the configuration of Jupyter Lab
+itself, create your own Jupyter-flake in an empty directory:
 
 ```shell
-$ nix run .#jupyter
+$ nix flake init -t github:kirelagin/jupyter.nix
 ```
 
+then edit `flake.nix` and start your Jupyter Lab:
 
-### Customisation
-
-#### `makeJupyterLab`
-
-The centerpiece of the library is the `makeJupyterLab` function.
-You pass the jupyter.nix configuration to it:
-
-```nix
-{ # ...
-  jupyter = jupyter.lib.makeJupyterLab {
-    pkgs = nixpkgs.legacyPackages.${system}; # (mandatory) your Nixpkgs set
-    pythonInterpreter = pkgs: pkgs.python3;  # (optional)
-    kernels = {
-      # see below
-    };
-  };
-}
+```shell
+nix run
 ```
 
-You will mostly be interested in the `kernels` option, however there are others
-as well (see [`modules.nix`](./jupyter/lib/jupyter.nix/modules.nix) for the detailed documentation).
+See the [documentation](#documentation) below for the full story.
 
-Kernel definitions have the following general form:
 
-```nix
-{ # ...
-  kernels = {
-    "<Kernel name>"."<kernel type>" = {
-      # kernel-type-specific options
-    };
-  };
-}
-```
+## Documentation
 
-#### Python kernel (`ipykernel`)
+* [Quickstart](./doc/quickstart.md) – installing, configuring, and the
+  `makeJupyterLab` options.
+* [Examples](./doc/examples.md) – ready-to-use configurations for every built-in
+  kernel type.
+* [Architecture](./doc/architecture.md) – how the library is structured and how
+  a configuration becomes a Jupyter Lab environment.
+* [Kernel authoring](./doc/kernel-authoring.md) – how to write your own kernel
+  type.
 
-The library provides a couple of _kernel types_ out-of-the-box,
-for example, a regular Python kernel (also known as `ipykernel`):
-
-```nix
-# kernels =
-{
-  "python".ipykernel = {
-    packages = pp: with pp; [
-      # Add Python packages that you need
-      # ...
-    ];
-
-    # There is nothing particularly special about Plotly or Matplotlib, however
-    # they require care when installing, since packages need to be added both to
-    # the kernel and to the Jupyter environment, so the helper function
-    # can take care of that for simplicity.
-    withPlotly = true;
-    withMatplotlib = false;
-  };
-}
-```
-
-#### Haskell kernel (`ihaskell`)
-
-Here is an example of an IHaskell kernel for the Haskell language:
-
-```nix
-# kernels =
-{
-  "Haskell".ihaskell = {
-    packages = hp: with hp; [
-      aeson
-      containers
-      text
-
-      ihaskell-aeson
-    ];
-  };
-}
-```
-
-#### Julia kernel (`ijulia`)
-
-Here is an example of an IJulia kernel for the Julia language:
-
-```nix
-# kernels =
-{
-  "Julia".ijulia = {
-    packages = [
-      "CSV"
-      "DataFrames"
-      "Distributions"
-    ];
-  };
-}
-```
-
-You can also use an existing Julia project (with `Project.toml` and `Manifest.toml`)
-by providing its directory:
-
-```nix
-# kernels =
-{
-  "Julia project".ijulia = {
-    project = "@.";
-  };
-}
-```
-
-#### Raw Jupyter kernel spec
-
-You can also provide a [Jupyter kernel spec][jupyter:kernelspec] directly
-by the means of the `kernelspec` kernel type.
-The Python definition above is roughly equivalent to the following direct definition:
-
-```nix
-# kernels =
-{
-  "python".kernelspec =
-    let
-      kernelEnv = pkgs.python3.withPackages (pp: with pp; [
-        # These are needed for Plotly
-        anywidget
-        nbconvert
-        pandas
-        plotly
-        # Add Python packages that you need
-        # ...
-      ]);
-    in {
-      spec = {
-        argv = [
-          "${kernelEnv.interpreter}"
-          "-m" "ipykernel_launcher"
-          "-f" "{connection_file}"
-        ];
-        display_name = "Python 3 (python)";
-        language = "python";
-        # specify logos ...
-      };
-      jupyterEnvPackages = pp: with pp; [
-        anywidget
-        plotly
-      ];
-    };
-}
-```
-
-[jupyter:kernelspec]: https://jupyter-client.readthedocs.io/en/stable/kernels.html#kernel-specs
-
-### Kernel types
-
-The most basic kernel type is `kernelspec` – it is simply a Nix-formatted
-kernel specification, which will get directly converted into JSON.
-
-The library also provides the following kernel types:
-
-* `ipykernel` – standard Python kernel
-* `ihaskell` – standard Haskell kernel
-* `ijulia` – standard Julia kernel
-
-See [`jupyter/kernel-types/README.md`](./jupyter/kernel-types/README.md) for the details
-of how all this works and how to contribute a new kernel type.
+The built-in kernel types are `ipykernel` (Python), `ihaskell` (Haskell),
+`ijulia` (Julia), and `kernelspec` (a raw Jupyter kernel spec written in Nix).
 
 
 ## Limitations
 
-* No way to provide global Jupyter configuration
-* No support for Jupyter extensions
-* High-level helpers only for Python, Haskell and Julia kernels (could be more!)
+* Only a fixed subset of global Jupyter configuration is exposed.
+* High-level helpers only for Python, Haskell, and Julia kernels (could be more!).
 * ...
 
-These are not inherent technical limitations, I have just implemented the bare minimum
-that I, as a fairly unsophisticated Jupyter user, need.
-Contributions are extremely welcome!
+These are not inherent technical limitations, just the bare minimum that I, as a
+fairly unsophisticated Jupyter user, need. Contributions are extremely welcome!
 
 
 ## Contributing
 
 If you would like to see something added to the library, please create an issue
-or, even better, send a pull request!
-
-Please, note that in this repository we are making effort to track
-the authorship information for all contributions.
-In particular, we are following the [REUSE] practices.
-The tl;dr is: please, add information about yourself to the headers of
-each of the files that you edited if your change was _substantial_
-(you get to judge what is substantial and what is not).
-
-[REUSE]: https://reuse.software/
-
-Also, do not forget to reflect the changes you make in `CHANGELOG.md`.
+or, even better, send a pull request! See [`CONTRIBUTING.md`](./CONTRIBUTING.md)
+for the repository layout, where the documentation lives, and our authorship
+(REUSE) conventions.
 
 
 ## License

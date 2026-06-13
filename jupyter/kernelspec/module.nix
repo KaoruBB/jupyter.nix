@@ -28,7 +28,7 @@
       };
 
       interrupt_mode = lib.mkOption {
-        type = lib.types.nullOr (lib.types.oneOf [ "signal" "message" ]);
+        type = lib.types.nullOr (lib.types.enum [ "signal" "message" ]);
         description = "How the client interrupts cell execution for this kernel";
         default = null;
         example = "message";
@@ -50,6 +50,12 @@
       # The options below are not part of the kernel spec json and
       # do not seem to be well-documented.
 
+      kernel_js = lib.mkOption {
+        type = lib.types.nullOr lib.types.path;
+        description = "Custom JavaScript code to be loaded with the kernel";
+        default = null;
+      };
+
       logo_svg = lib.mkOption {
         type = lib.types.nullOr lib.types.path;
         description = "SVG logo for the kernel";
@@ -65,24 +71,37 @@
         description = "32×32 PNG logo for the kernel";
         default = null;
       };
-
-      ### Output:
-
-      # This module generates the specification into the following
-      # output option, which has to be defined by the evaluator:
-      # outDir = lib.mkOption {
-      #   type = lib.types.package;
-      # };
     };
+
+    ### Output:
+
+    # This module generates the specification into the following
+    # output option, which has to be defined by the evaluator:
+    # outDir = lib.mkOption {
+    #   type = lib.types.package;  # or any other type compatible with `package`
+    # };
   };
 
   config =
     let
-      jsonSpec = lib.generators.toJSON { } (lib.filterAttrs (k: v: v != null) config.spec);
+      jsonSpecFields = [
+        "argv"
+        "display_name"
+        "language"
+        "interrupt_mode"
+        "env"
+        "metadata"
+      ];
+      jsonSpec = lib.filterAttrs (k: v: v != null) (
+        lib.genAttrs jsonSpecFields (field: config.spec.${field} or null)
+      );
+      jsonSpecJson = lib.strings.toJSON jsonSpec;
     in {
       outDir = pkgs.runCommandLocal "jupyter-kernelspec-${name}" { } (''
         mkdir -p -- "$out"
-        ln -s -- "${pkgs.writeText "${name}.json" jsonSpec}" "$out/kernel.json"
+        ln -s -- "${pkgs.writeText "${name}.json" jsonSpecJson}" "$out/kernel.json"
+      '' + lib.optionalString (config.spec.kernel_js != null) ''
+        ln -s -- "${config.spec.kernel_js}" "$out/kernel.js"
       '' + lib.optionalString (config.spec.logo_svg != null) ''
         ln -s -- "${config.spec.logo_svg}" "$out/logo-svg.svg"
       '' + lib.optionalString (config.spec.logo_64 != null) ''

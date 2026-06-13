@@ -4,6 +4,11 @@
 
 { config, jupyterLib, lib, ... }:
 
+let
+  jsonFormat = config.pkgs.formats.json { };
+
+in
+
 {
   options = {
     pkgs = lib.mkOption {
@@ -27,20 +32,22 @@
       example = lib.literalExpression ''pp: with pp; [ plotly ]'';
     };
 
-    jupyterExtensions = lib.mkOption {
+    labExtensions = lib.mkOption {
       type = lib.types.listOf lib.types.package;
-      description = "Packages containing Jupyter extensions to install";
+      description = "Packages containing Jupyter labextensions to install";
       default = [ ];
     };
 
     kernelTypes = lib.mkOption {
       type = lib.types.attrsOf (lib.types.deferredModuleWith {
-        staticModules = [ ./kernel.nix ];  # This is what defines the output config options commont to all kernel types
+        staticModules = [ ../kernel/module.nix ];  # This is what defines the output config options common to all kernel types
       });
       description = "Supported kernel types";
-      example = {
-        kernelspec = ./moduels/kernelspec.nix;  # kernel defined directly by a kernelspec
-      };
+      example = lib.literalExpression ''
+        {
+          newlang = path/to/newlangkernel.nix;
+        };
+      '';
     };
 
     kernels = lib.mkOption {
@@ -64,7 +71,7 @@
           description = "${name} kernel definition";
         }
       ) config.kernelTypes));
-      description = "Jupter kernels definitions";
+      description = "Jupyter kernels definitions";
       default = {};
       defaultText = lib.literalExpression ''{}'';
     };
@@ -74,6 +81,16 @@
       description = ''Whether to add the “native” kernel, i.e. the Python interpreter used to run Jupyter itself'';
       default = false;  # Note: Upstream Jupyter default is `true`!
       example = true;
+    };
+
+    settings = lib.mkOption {
+      description = "Arbitrary settings that go into `jupyter_config.json`";
+      default = { };
+      type = lib.types.submodule {
+        freeformType = jsonFormat.type;
+        options = {
+        };
+      };
     };
 
     outDrv = lib.mkOption {
@@ -90,25 +107,14 @@
 
       python = config.pythonInterpreter pkgs;
 
-      jupyterConf = pkgs.writeTextFile {
-        name = "jupyterConf";
-        destination = "/etc/jupyter/jupyter_config.json";
-        text = lib.generators.toJSON { } {
-          "KernelSpecManager" = {
-            "ensure_native_kernel" = config.enableNativeKernel;
-          };
-          "LabApp" = {
-            "extension_manager" = "readonly";
-          };
-        };
-      };
+      jupyterConf = jsonFormat.generate "jupyter_config.json" config.settings;
 
       kernelsDir = "$out/share/jupyter/kernels";
 
       extensionsDir = "share/jupyter/labextensions";
       extensions = pkgs.symlinkJoin {
         name = "jupyter-labextensions";
-        paths = config.jupyterExtensions;
+        paths = config.labExtensions;
         stripPrefix = "/${extensionsDir}";
         failOnMissing = true;
       };
@@ -120,17 +126,19 @@
       jupyterEnvPackages = pp:
         lib.concatMap (kern: kern.jupyterEnvPackages pp) (lib.attrValues kernels);
 
-      jupyterExtensions = [
-        python.pkgs.jupyterlab-widgets
-        python.pkgs.jupyterlab-pygments
-      ] ++ lib.concatMap (kern: kern.jupyterExtensions) (lib.attrValues kernels);
+      labExtensions = lib.concatMap (kern: kern.labExtensions) (lib.attrValues kernels);
+
+      settings = {
+        "KernelSpecManager" = {
+          "ensure_native_kernel" = config.enableNativeKernel;
+        };
+        "LabApp" = {
+          "extension_manager" = "readonly";
+        };
+      };
 
       outDrv = python.buildEnv.override (orig: {
-        buildEnv = { paths, ... }@args: orig.buildEnv (args // {
-          paths = paths ++ [
-            jupyterConf
-          ];
-
+        buildEnv = { ... }@args: orig.buildEnv (args // {
           meta = {
             changelog = "https://github.com/kirelagin/jupyter.nix/blob/main/CHANGELOG.md";
             homepage = "https://github.com/kirelagin/jupyter.nix";
@@ -144,10 +152,12 @@
         ] ++ config.jupyterEnvPackages python.pkgs;
 
         postBuild = ''
+          ln -sT -- "${jupyterConf}" "$out/etc/jupyter/jupyter_config.json"
+
           # jupyterlab depends on ipykernel, which ships with a kernel spec for itself,
           # so it gets symlinked into our environment, but we do not want it!
           # XXX: this might be a bit fragile, since we assume that we can `rm` it,
-          # which might not be always true (e.g. if there parent is a symlink into another drv).
+          # which might not be always true (e.g. if their parent is a symlink into another drv).
           rm -rf -- "${kernelsDir}"
           mkdir -p -- "${kernelsDir}"
         '' + lib.concatStringsSep "\n" (lib.mapAttrsToList (name: kern: ''
@@ -158,5 +168,11 @@
         '';
       });
     };
+
+  imports = [
+    ./collaboration/module.nix
+
+    (lib.modules.mkRenamedOptionModule [ "jupyterExtensions" ] [ "labExtensions" ])
+  ];
 
 }

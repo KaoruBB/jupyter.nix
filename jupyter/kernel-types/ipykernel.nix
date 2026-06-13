@@ -2,10 +2,9 @@
 #
 # SPDX-License-Identifier: MPL-2.0 OR MIT
 
-{ kernelName, name, config, jupyterConfig, jupyterLib, lib, pkgs, ... }:
+{ kernelName, config, jupyterConfig, jupyterLib, lib, pkgs, ... }:
 
-{
-
+jupyterLib.kernelspecKernel {
   options = {
     packages = lib.mkOption {
       type = lib.types.functionTo (lib.types.listOf lib.types.package);
@@ -47,7 +46,7 @@
         pp.ipympl
         pp.matplotlib
       ] ++ config.packages pp);
-
+    in {
       spec = {
         argv = [
           "${kernelEnv.interpreter}"
@@ -63,8 +62,6 @@
         logo_64 = "${kernelEnv}/${kernelEnv.sitePackages}/ipykernel/resources/logo-64x64.png";
         logo_32 = "${kernelEnv}/${kernelEnv.sitePackages}/ipykernel/resources/logo-32x32.png";
       };
-    in {
-      outDir = jupyterLib.buildKernelSpec pkgs name spec;
 
       jupyterExtensions =
         let
@@ -72,6 +69,7 @@
         in
           lib.optionals config.withPlotly [
             pp.anywidget
+            pp.jupyterlab-widgets
             pp.plotly
           ];
 

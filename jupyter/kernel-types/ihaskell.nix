@@ -2,14 +2,14 @@
 #
 # SPDX-License-Identifier: MPL-2.0 OR MIT
 
-{ kernelName, name, config, jupyterConfig, jupyterLib, lib, pkgs, ... }:
+{ kernelName, config, jupyterLib, lib, pkgs, ... }:
 
-{
+jupyterLib.kernelspecKernel {
 
   options = {
     haskellPackageSet = lib.mkOption {
       type = lib.types.functionTo (lib.types.lazyAttrsOf lib.types.anything);
-      description = "Select for the Python packages set to use";
+      description = "Selector for the Haskell packages set to use";
       default = pkgs: pkgs.haskellPackages;
       defaultText = lib.literalExpression ''pkgs: pkgs.haskellPackages'';
       example = lib.literalExpression ''pkgs: pkgs.haskell.packages.ghc987'';
@@ -38,12 +38,24 @@
         hp.ihaskell
       ] ++ config.packages hp);
 
+      ghc = haskellPackages.ghc;
+
       dataDir =
-        # FIXME: Why does this have to be so hard??
+        # The datadir path for packages includes a “unit-id” (`--hash-unit-ids`), which is calculated
+        # by GHC and is not really exposed anywhere in Nixpkgs. There is no particularly obvious way
+        # to get it, so we just assume there is only a single datadir and therefore grab the first path
+        # that matches the glob.
+        # FIXME: doing it this way is pretty far from perfect.
         let
-          dataDir1 = "${haskellPackages.ihaskell.data}/share/${haskellPackages.ghc.haskellCompilerName}";
-          files = builtins.readDir dataDir1;
-          subdir = lib.head (lib.attrNames files);  # Assume there is exactly one
+          dataDir1 = "${haskellPackages.ihaskell.data}/share/${ghc.targetPrefix}${ghc.haskellCompilerName}";
+          subdirs = lib.attrNames (builtins.readDir dataDir1);
+          subdir =
+            lib.throwIf (subdirs == [])
+              "ihaskell kernel: no datadir subdirectory found under ${dataDir1}"
+            (lib.throwIf (lib.length subdirs > 1)
+              ("ihaskell kernel: multiple datadir subdirectories found under ${dataDir1}: "
+                + lib.concatStringsSep " " subdirs)
+            (lib.head subdirs));
         in "${dataDir1}/${subdir}/${haskellPackages.ihaskell.name}";
 
       # Haskell syntax highlighting extension
@@ -52,11 +64,11 @@
         mkdir -p -- "$extDir"
         ln -sT -- "${dataDir}/jupyterlab-ihaskell/labextension" "$extDir/jupyterlab-ihaskell"
       '';
-
+    in {
       spec = {
         argv = [
           (lib.getExe' kernelEnv "ihaskell")
-          "-l" "${kernelEnv}/lib/${haskellPackages.ghc.haskellCompilerName}/lib"
+          "-l" "${kernelEnv}/lib/${ghc.targetPrefix}${ghc.haskellCompilerName}/lib"
           "kernel"
           "{connection_file}"
           "+RTS"
@@ -64,16 +76,16 @@
           "-RTS"
         ];
 
+        kernel_js = "${dataDir}/html/kernel.js";
+
         display_name = "IHaskell (${kernelName})";
 
         language = "haskell";
 
         logo_svg = "${dataDir}/html/logo-64x64.svg";
       };
-    in {
-      outDir = jupyterLib.buildKernelSpec pkgs name spec;
 
-      jupyterExtensions = [
+      labExtensions = [
         jupyterlab-ihaskell
       ];
     };
